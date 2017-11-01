@@ -1,0 +1,89 @@
+
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <link rel="stylesheet" type="text/css" href="theme.css">
+  </head>
+  <body>
+    <div id="mainContainer">
+      <div id = "usernameWrap">
+        <form action = '' id='usernameAreaForm' onsubmit = 'return usernameSubmit()'>
+          Enter Your Username :
+          <input id = 'username' autocomplete="off" size="30" /><button id='usernameButton'>Enter</button>
+        </form>
+      </div>
+        <div id = 'msgWrap'>
+        <ul id="messages"></ul>
+        <form action="" onsubmit = 'return msgFormSubmit()' id='msgAreaForm'>
+          <input id="messageText" autocomplete="off"  /><button id='msgSendButton'>Send</button>
+        </form>
+      </div>
+      <div id="onlineUsers"></div>
+      <div id="typing"></div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io('localhost:3000');
+      var keyupTimer;
+      var keydownTimer;
+      var username;
+      function usernameSubmit(){
+        socket.emit('add_user');
+        username = document.getElementById('username').value;
+        username = 'chosen_ones';
+        if(username != '')
+        {
+          document.getElementById('usernameWrap').style.display = 'none';
+          document.getElementById('msgWrap').style.display = 'block';
+        }
+        else{
+          alert('Enter a username');
+        }
+        return false;
+      }
+      function msgFormSubmit(){
+        var element = document.getElementById('messageText');
+        socket.emit('send_message', username,element.value);
+        element.value = '';
+        return false;
+      };
+      document.getElementById('messageText').onkeydown =  function msgTextKeydown(e){
+        if(e.keyCode != 13){
+          clearTimeout(keydownTimer);
+          keydownTimer = setTimeout(function(){
+            socket.emit('typing event', '<b>'+username+'</b>' + ' is typing....');
+          }, 200);
+          clearTimeout(keyupTimer);
+          keyupTimer = setTimeout(function(){
+            socket.emit('typing event',false)
+          }, 1000);
+        }
+      };
+      socket.on('typing event',function(data){
+        if(data){
+          document.getElementById('typing').innerHTML = data;
+        }
+        else{
+          document.getElementById('typing').innerHTML = '';
+        }
+      });
+      socket.on('broadcast_message', function(user,msg){
+        var li = document.createElement('li');
+        var textNode = document.createTextNode(user+' : '+msg);
+        li.appendChild(textNode);
+        //node.innerHTML = msg;    //innerHTML also can be used but TextNode is more faster
+        document.getElementById('messages').appendChild(li);
+      });
+      socket.on('chat connections',function(users){
+        document.getElementById('onlineUsers').innerHTML = 'Online Users : ' + users;
+      });
+      socket.on('connected',function(data, message){
+        console.log('connected: ', data, message);
+      });
+      socket.on('leave',function(data, message){
+        console.log('left: ', data, message);
+      });
+    </script>
+  </body>
+</html>

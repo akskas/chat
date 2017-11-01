@@ -1,0 +1,25 @@
+{
+  "name": "chat-app",
+  "version": "1.0.0",
+  "description": "new chat app",
+  "main": "app.js",
+  "scripts": {
+    "test": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "chat-app"
+  },
+  "keywords": [
+    "chat",
+    "app"
+  ],
+  "author": "Ankul Kumar",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^4.16.2",
+    "nodemon": "^1.12.1",
+    "socket.io": "^2.0.4",
+    "underscore": "^1.8.3"
+  }
+}
