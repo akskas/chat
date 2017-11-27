@@ -68,6 +68,14 @@ io.on('connection', function(socket) {
     leave_room(socket.room);
     socket.leave(socket.room);
 	});
+
+	// when the user leaves chat.. perform this
+	socket.on('leave_chat', function() {
+		// echo to room that this client has left
+    io.sockets.in(socket.room).emit('leave', 'SERVER', socket.room);
+    leave_room(socket.room);
+    socket.leave(socket.room);
+	});
 });
 
 function get_room(socket) {
