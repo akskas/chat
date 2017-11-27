@@ -6,6 +6,10 @@ var io = require('socket.io')(http);
 
 app.use(express.static(__dirname + '/public'));
 
+if (process.env.ENV === 'prod') {
+	console.log = function () {};
+}
+
 // rooms which are currently available in chat
 var rooms = [];
 
@@ -17,11 +21,18 @@ var rooms = [];
 }
 **/
 
-var connectedUsers = 0;
+var totalConnections = 0;
+
+app.get('/rooms/current', function (req, res) {
+	res.send({
+		totalConnections: totalConnections,
+		rooms: rooms
+	});
+});
 
 io.on('connection', function(socket) {
 	console.log(socket.id);
-	connectedUsers++;
+	totalConnections++;
 
   // when the client emits 'add_user', this listens and executes
 	socket.on('add_user', function () {
@@ -37,9 +48,17 @@ io.on('connection', function(socket) {
 	});
 
   // when the client emits 'send_message', this listens and executes
-	socket.on('send_message', function (user, data) {
+	socket.on('send_message', function (user, data, callback) {
 		// we tell the client to execute 'message' with 2 parameters
-		io.sockets.in(socket.room).emit('broadcast_message', socket.room, data);
+		socket.broadcast.to(socket.room).emit('broadcast_message', socket.room, data);
+
+		callback(user, data);
+	});
+
+	// when the client emits 'typing', this listens and executes
+	socket.on('typing', function (user, data) {
+		// we tell the client to execute 'message' with 2 parameters
+		socket.broadcast.to(socket.room).emit('typing', socket.room);
 	});
 
 	// when the user disconnects.. perform this

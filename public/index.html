@@ -44,7 +44,10 @@
       }
       function msgFormSubmit(){
         var element = document.getElementById('messageText');
-        socket.emit('send_message', username,element.value);
+        socket.emit('send_message', username, element.value,
+          function (room, data) {
+            console.log('send_message_callback: ', data);
+          });
         element.value = '';
         return false;
       };
