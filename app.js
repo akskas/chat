@@ -62,7 +62,7 @@ io.on('connection', function(socket) {
 	});
 
 	// when the client emits 'typing_end', this listens and executes
-	socket.on('typing_start', function (user, data) {
+	socket.on('typing_end', function (user, data) {
 		// we tell the client to execute 'message' with 2 parameters
 		socket.broadcast.to(socket.room).emit('broadcast_typing_end', socket.room);
 	});
