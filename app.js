@@ -55,10 +55,16 @@ io.on('connection', function(socket) {
 		callback(user, data);
 	});
 
-	// when the client emits 'typing', this listens and executes
-	socket.on('typing', function (user, data) {
+	// when the client emits 'typing_start', this listens and executes
+	socket.on('typing_start', function (user, data) {
 		// we tell the client to execute 'message' with 2 parameters
-		socket.broadcast.to(socket.room).emit('typing', socket.room);
+		socket.broadcast.to(socket.room).emit('broadcast_typing_start', socket.room);
+	});
+
+	// when the client emits 'typing_end', this listens and executes
+	socket.on('typing_start', function (user, data) {
+		// we tell the client to execute 'message' with 2 parameters
+		socket.broadcast.to(socket.room).emit('broadcast_typing_end', socket.room);
 	});
 
 	// when the user disconnects.. perform this
